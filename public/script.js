@@ -2,6 +2,7 @@ const caixaDeBusca = document.getElementById('caixaDeBusca');
 const botaoDeBusca = document.getElementById('botaoDeBusca');
 const resultadosDiv = document.getElementById('resultados');
 
+// Função para busar livros
 const realizarBusca = () => {
     const termo = caixaDeBusca.value;
 
@@ -22,7 +23,7 @@ const realizarBusca = () => {
         
 
 };
-
+// Exibe o resultado de busca de livros
 const exibirResultados = (livros) => {
     resultadosDiv.innerHTML = '';
 
@@ -30,7 +31,7 @@ const exibirResultados = (livros) => {
         resultadosDiv.innerHTML = '<p>Nenhum livro encontrado para o termo buscado.</p>';
         return;
     }
-
+// Loop for para pesquisar por um livro
     livros.forEach(livro => {
         const livroCard = document.createElement('div');
         livroCard.className = 'livro-card';
@@ -43,13 +44,13 @@ const exibirResultados = (livros) => {
         `;
         resultadosDiv.appendChild(livroCard);
     });
-
+// excluir um livro que foi buscado
     adicionarEventosExcluir();
 };
 
 const adicionarEventosExcluir = () => {
     const botoesExcluir = document.querySelectorAll('.botao-excluir');
-
+// Botão excluir condicionado ao botaõ de busca ou seja espera por um click no botão buscar.
     botoesExcluir.forEach(botao => {
         botao.addEventListener('click', async () => {
             const livroId = botao.getAttribute('data-id');
@@ -86,7 +87,7 @@ caixaDeBusca.addEventListener('keyup', (event) => {
         realizarBusca();
     }
 });
-
+// Função para adicionar um novo livro
 const formAdicionarLivro = document.getElementById('formAdicionarLivro');
 formAdicionarLivro.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -94,7 +95,7 @@ formAdicionarLivro.addEventListener('submit', async (event) => {
     const titulo = document.getElementById('titulo').value;
     const ano_publicacao = document.getElementById('ano_publicacao').value;
     const genero = document.getElementById('genero').value;
-
+// Se diferente de titulo, ano_plublicação e genero lança um erro solicitando ao usuário para preencher o campo.
     if (!titulo || !ano_publicacao || !genero) {
         alert('Por favor, preencha todos os campos.');
         return;
@@ -128,7 +129,7 @@ formAdicionarLivro.addEventListener('submit', async (event) => {
         mensagemFeedback.className = 'mensagem-feedback';
     }
 });
-
+// Botão listar autores condicionado a um evento de click.
 const botaoListarAutores = document.getElementById('botaoListarAutores');
 const listaAutores = document.getElementById('listaAutores');
 
