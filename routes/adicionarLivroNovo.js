@@ -1,14 +1,23 @@
 const express = require('express');
 const router = express.Router();
-//const pool = require('../db');
+const db = require('../db');
 
 router.post('/', async (req, res) => {
     try {
         const { titulo, ano_publicacao, genero } = req.body;
 
+        // Validação básica
+        if (!titulo || typeof titulo !== 'string') {
+            return res.status(400).json({ error: 'O campo título é obrigatório e deve ser uma string.' });
+        }
+
+        if (!genero || typeof genero !== 'string') {
+            return res.status(400).json({ error: 'O campo gênero é obrigatório e deve ser uma string.' });
+        }
+
         // Validar o gênero
         const sqlValidaGenero = 'SELECT * FROM GENERO WHERE nome = ?';
-        const [generos] = await pool.query(sqlValidaGenero, [genero]);
+        const [generos] = await db.query(sqlValidaGenero, [genero]);
 
         if (generos.length === 0) {
             return res.status(400).json({ error: 'Gênero inválido.' });
@@ -26,7 +35,7 @@ router.post('/', async (req, res) => {
             INSERT INTO LIVRO (titulo, ano_publicacao, genero)
             VALUES (?, ?, ?);
         `;
-        const [result] = await pool.query(sql, [titulo, ano_publicacao, genero]);
+        const [result] = await db.query(sql, [titulo, ano_publicacao, genero]);
 
         res.status(201).json({ livro_id: result.insertId });
     } catch (err) {
@@ -35,5 +44,5 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Exportar o router
 module.exports = router;
+

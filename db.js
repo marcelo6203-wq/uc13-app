@@ -1,21 +1,22 @@
 const mysql = require('mysql2');
 
-// Criação da conexão com o banco de dados
+// Criação da conexão com o banco de dados usando Promises
 const db = mysql.createConnection({
-  host: 'localhost',       // ou o IP do servidor MySQL
-  user: 'root',     // substitua pelo seu usuário MySQL
-  password: 'senacrs',   // substitua pela sua senha MySQL
-  database: 'biblioteca'// substitua pelo nome do seu banco
-});
+  host: 'localhost',
+  user: 'root',
+  password: 'senacrs',
+  database: 'biblioteca'
+}).promise(); // 👈 aqui está o ponto certo para usar .promise()
 
 // Conecta ao banco
-db.connect((err) => {
-  if (err) {
-    console.error('Erro ao conectar ao MySQL:', err.message);
-  } else {
+db.connect()
+  .then(() => {
     console.log('Conectado ao banco de dados MySQL.');
-  }
-});
+  })
+  .catch((err) => {
+    console.error('Erro ao conectar ao MySQL:', err.message);
+  });
 
 module.exports = db;
+
 

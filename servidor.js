@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2');
+const db = require('./db'); // Conexão centralizada com MySQL
 const adicionarLivroNovo = require('./routes/adicionarLivroNovo');
 const autoresRouter = require('./routes/autoresRouter');
 const pesquisarLivros = require('./routes/pesquisarLivros');
@@ -8,35 +8,37 @@ const adicionarGenero = require('./routes/adicionarGênero');
 const app = express();
 const port = 3000;
 
-// Configuração do pool de conexões com o banco de dados
-const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'senacrs',
-    database: 'biblioteca',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-}).promise();
+// Middleware para interpretar JSON
+app.use(express.json());
 
-// Middleware global de logger para todas as requisições
-function meuLogger(req, res, next) {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
-}
-
-app.use(meuLogger);
-
-// Middleware para servir arquivos estáticos
+// Middleware para servir arquivos estáticos da pasta 'public'
 app.use(express.static('public'));
 
-// Usar os roteadores importados
-app.use('/api/livros', adicionarLivroNovo); // Rotas relacionadas a livros
-app.use('/api/autores', autoresRouter); // Rotas relacionadas a autores
-app.use('/api/livros/pesquisar', pesquisarLivros); // Rota para pesquisar livros
-app.use('/api/generos', adicionarGenero); // Rotas relacionadas a gêneros
+// Middleware global de logger
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
+// Rotas da aplicação
+app.use('/api/livros', adicionarLivroNovo);         // Adicionar e excluir livros
+app.use('/api/autores', autoresRouter);             // Listar autores
+app.use('/api/livros/pesquisar', pesquisarLivros);  // Buscar livros por termo
+app.use('/api/generos', adicionarGenero);           // Adicionar gêneros
+
+// Middleware para rota não encontrada
+app.use((req, res) => {
+  res.status(404).json({ error: 'Rota não encontrada.' });
+});
+
+// Middleware global de tratamento de erros (opcional)
+app.use((err, req, res, next) => {
+  console.error('Erro inesperado:', err);
+  res.status(500).json({ error: 'Erro interno do servidor.' });
+});
 
 // Inicia o servidor
 app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });
+

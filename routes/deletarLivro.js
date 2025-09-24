@@ -1,13 +1,17 @@
-const { route } = require("./autoresRouter");
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
 
 // Deletar um livro
-route.delete('/api/livros/:id', async (req, res) => {
+router.delete('/api/livros/:id', async (req, res) => {
     try {
         const livroId = req.params.id;
 
-        await pool.query('DELETE FROM LIVRO_AUTOR WHERE livro_id = ?', [livroId]);
+        // Primeiro, remover os vínculos com autores
+        await db.query('DELETE FROM LIVRO_AUTOR WHERE livro_id = ?', [livroId]);
 
-        const [result] = await pool.query('DELETE FROM LIVRO WHERE livro_id = ?', [livroId]);
+        // Depois, remover o livro
+        const [result] = await db.query('DELETE FROM LIVRO WHERE livro_id = ?', [livroId]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Livro não encontrado.' });
@@ -20,4 +24,3 @@ route.delete('/api/livros/:id', async (req, res) => {
     }
 });
 
-module.exports = router;

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-//const pool = require('../db'); // Certifique-se de que este arquivo está configurado corretamente
+const db = require('../db'); // Corrigido: usar o nome correto da conexão
 
 // Rota para adicionar gênero
 router.post('/', express.json(), async (req, res) => {
@@ -14,7 +14,7 @@ router.post('/', express.json(), async (req, res) => {
 
         // Inserir o gênero no banco de dados
         const sql = 'INSERT INTO GENERO (nome) VALUES (?);';
-        const [result] = await pool.query(sql, [nome]);
+        const [result] = await db.query(sql, [nome]); // Corrigido: usar db.query
 
         // Retornar o ID do gênero inserido
         res.status(201).json({ genero_id: result.insertId, nome });
@@ -24,5 +24,5 @@ router.post('/', express.json(), async (req, res) => {
     }
 });
 
-// Exportar o router
 module.exports = router;
+

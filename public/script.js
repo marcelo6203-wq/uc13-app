@@ -1,10 +1,14 @@
 const caixaDeBusca = document.getElementById('caixaDeBusca');
 const botaoDeBusca = document.getElementById('botaoDeBusca');
 const resultadosDiv = document.getElementById('resultados');
+const formAdicionarLivro = document.getElementById('formAdicionarLivro');
+const botaoListarAutores = document.getElementById('botaoListarAutores');
+const listaAutores = document.getElementById('listaAutores');
+const mensagemFeedback = document.getElementById('mensagemFeedback');
 
-// Função para busar livros
+// 🔍 Buscar livros
 const realizarBusca = () => {
-    const termo = caixaDeBusca.value;
+    const termo = caixaDeBusca.value.trim();
 
     if (termo.length < 2) {
         resultadosDiv.innerHTML = '<p>Digite pelo menos 2 caracteres para buscar.</p>';
@@ -13,25 +17,28 @@ const realizarBusca = () => {
 
     fetch(`/api/livros/pesquisar?termo=${encodeURIComponent(termo)}`)
         .then(response => response.json())
-        .then(livros => {
-            exibirResultados(livros);
+        .then(json => {
+            if (json.success && Array.isArray(json.data)) {
+                exibirResultados(json.data);
+            } else {
+                resultadosDiv.innerHTML = '<p>Erro ao buscar livros.</p>';
+            }
         })
         .catch(error => {
             console.error('Erro ao buscar livros:', error);
             resultadosDiv.innerHTML = '<p>Ocorreu um erro ao realizar a busca. Tente novamente.</p>';
         });
-        
-
 };
-// Exibe o resultado de busca de livros
+
+// 📚 Exibir resultados da busca
 const exibirResultados = (livros) => {
     resultadosDiv.innerHTML = '';
 
-    if (livros.length === 0) {
+    if (!Array.isArray(livros) || livros.length === 0) {
         resultadosDiv.innerHTML = '<p>Nenhum livro encontrado para o termo buscado.</p>';
         return;
     }
-// Loop for para pesquisar por um livro
+
     livros.forEach(livro => {
         const livroCard = document.createElement('div');
         livroCard.className = 'livro-card';
@@ -44,13 +51,13 @@ const exibirResultados = (livros) => {
         `;
         resultadosDiv.appendChild(livroCard);
     });
-// excluir um livro que foi buscado
+
     adicionarEventosExcluir();
 };
 
+// 🗑️ Excluir livro
 const adicionarEventosExcluir = () => {
     const botoesExcluir = document.querySelectorAll('.botao-excluir');
-// Botão excluir condicionado ao botaõ de busca ou seja espera por um click no botão buscar.
     botoesExcluir.forEach(botao => {
         botao.addEventListener('click', async () => {
             const livroId = botao.getAttribute('data-id');
@@ -74,35 +81,38 @@ const adicionarEventosExcluir = () => {
     });
 };
 
+// 💬 Mostrar mensagens de feedback
 const mostrarMensagem = (texto, sucesso) => {
-    const divMensagem = document.getElementById('mensagemFeedback');
-    divMensagem.textContent = texto;
-    divMensagem.style.color = sucesso ? 'green' : 'red';
-    setTimeout(() => divMensagem.textContent = '', 3000);
+    mensagemFeedback.textContent = texto;
+    mensagemFeedback.style.color = sucesso ? 'green' : 'red';
+    setTimeout(() => {
+        mensagemFeedback.textContent = '';
+    }, 3000);
 };
 
+// 🔎 Eventos de busca
 botaoDeBusca.addEventListener('click', realizarBusca);
 caixaDeBusca.addEventListener('keyup', (event) => {
     if (event.key === 'Enter') {
         realizarBusca();
     }
 });
-// Função para adicionar um novo livro
-const formAdicionarLivro = document.getElementById('formAdicionarLivro');
+
+// ➕ Adicionar novo livro
 formAdicionarLivro.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const titulo = document.getElementById('titulo').value;
-    const ano_publicacao = document.getElementById('ano_publicacao').value;
-    const genero = document.getElementById('genero').value;
-// Se diferente de titulo, ano_plublicação e genero lança um erro solicitando ao usuário para preencher o campo.
+    const titulo = document.getElementById('titulo').value.trim();
+    const ano_publicacao = document.getElementById('ano_publicacao').value.trim();
+    const genero = document.getElementById('genero').value.trim();
+
     if (!titulo || !ano_publicacao || !genero) {
         alert('Por favor, preencha todos os campos.');
         return;
     }
 
-    const mensagemFeedback = document.getElementById('mensagemFeedback');
     mensagemFeedback.textContent = 'Adicionando livro...';
+    mensagemFeedback.style.color = 'black';
 
     try {
         const response = await fetch('/api/livros/novo', {
@@ -125,30 +135,35 @@ formAdicionarLivro.addEventListener('submit', async (event) => {
         console.error('Erro ao adicionar livro:', error);
         mensagemFeedback.textContent = 'Ocorreu um erro ao adicionar o livro. Tente novamente.';
         mensagemFeedback.className = 'mensagem-erro';
-        setTimeout(() => { mensagemFeedback.textContent = ''; }, 3000);
-        mensagemFeedback.className = 'mensagem-feedback';
+        setTimeout(() => {
+            mensagemFeedback.textContent = '';
+            mensagemFeedback.className = 'mensagem-feedback';
+        }, 3000);
     }
 });
-// Botão listar autores condicionado a um evento de click.
-const botaoListarAutores = document.getElementById('botaoListarAutores');
-const listaAutores = document.getElementById('listaAutores');
 
+// 👥 Listar autores
 botaoListarAutores.addEventListener('click', async () => {
     try {
         const response = await fetch('/api/autores');
         if (!response.ok) {
             throw new Error('Erro ao buscar autores');
         }
-        const autores = await response.json();
-        listaAutores.innerHTML = '';
-        autores.forEach(autor => {
-            const li = document.createElement('li');
-            li.textContent = autor.nome;
-            listaAutores.appendChild(li);
-        });
+
+        const json = await response.json();
+
+        if (json.success && Array.isArray(json.data)) {
+            listaAutores.innerHTML = '';
+            json.data.forEach(autor => {
+                const li = document.createElement('li');
+                li.textContent = autor.nome;
+                listaAutores.appendChild(li);
+            });
+        } else {
+            listaAutores.innerHTML = '<li>Erro ao listar autores.</li>';
+        }
     } catch (error) {
         console.error('Erro ao listar autores:', error);
         alert('Ocorreu um erro ao listar os autores. Tente novamente.');
     }
 });
-

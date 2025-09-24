@@ -1,20 +1,24 @@
 const express = require('express');
 const router = express.Router();
-//const pool = require('../db');
+const db = require('../db');
 
 // Rota para buscar todos os autores
 router.get('/', async (req, res) => {
     try {
-        // Consulta para obter todos os autores ordenados por nome
-        const [autores] = await pool.query('SELECT * FROM AUTOR ORDER BY nome;');
-        res.json(autores);
+        const [autores] = await db.query('SELECT * FROM AUTOR ORDER BY nome;');
+
+        if (autores.length === 0) {
+            return res.status(404).json({ success: false, error: 'Nenhum autor encontrado.' });
+        }
+
+        res.json({ success: true, data: autores });
     } catch (err) {
         console.error("Erro ao buscar autores:", err);
-        res.status(500).json({ error: 'Ocorreu um erro ao buscar autores.' });
+        res.status(500).json({ success: false, error: 'Ocorreu um erro ao buscar autores.' });
     }
 });
 
-// Exportar o router
 module.exports = router;
+
 
 

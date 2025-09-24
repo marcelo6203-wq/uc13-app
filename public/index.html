@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,"> <!-- Evita erro 404 do favicon -->
     <title>Busca de Livros - Biblioteca</title>
     <link rel="stylesheet" href="style.css">
-    
 </head>
 <body>
     <div class="container">
@@ -13,33 +13,42 @@
             <h1>Biblioteca Digital</h1>
             <p>Pesquise por título da obra ou nome do autor</p>
         </header>
+
         <main>
+            <!-- Caixa de busca -->
             <div class="search-box">
-    <input type="text" id="caixaDeBusca" placeholder="Ex: Machado de Assis ou 1984">
-    <button id="botaoDeBusca">Buscar</button>
-</div>
+                <input type="text" id="caixaDeBusca" placeholder="Ex: Machado de Assis ou 1984" aria-label="Campo de busca por livro ou autor">
+                <button id="botaoDeBusca">Buscar</button>
+            </div>
 
-<div id="resultados"></div>
-<!--fomulário para Adicionar um novo livro com campos obrigatórios (requerid)-->
-<form id="formAdicionarLivro">
-    <h2>Adicionar Novo Livro</h2>
-    <label for="titulo">Título:</label>
-    <input type="text" id="titulo" placeholder="Título" required>
-    <label for="ano_publicacao">Ano de Publicação:</label>
-    <input type="text" id="ano_publicacao" placeholder="Ano de Publicação" required>
-    <label for="genero">Gênero:</label>
-    <input type="text" id="genero" placeholder="Gênero" required>
-    <button type="submit">Cadastrar Livro</button>
-</form>
-<!--Botão para Listar livros por autoeres e mostrar uma menssagem de Feedback-->
-<button id="botaoListarAutores">Listar Todos os Autores</button>
-<ol id="listaAutores"></ol>
-<div id="mensagemFeedback" class="mensagem-feedback"></div>
+            <!-- Resultados da busca -->
+            <div id="resultados" aria-live="polite"></div>
 
+            <!-- Formulário para adicionar livro -->
+            <form id="formAdicionarLivro">
+                <h2>Adicionar Novo Livro</h2>
+                <label for="titulo">Título:</label>
+                <input type="text" id="titulo" placeholder="Título" required>
 
+                <label for="ano_publicacao">Ano de Publicação:</label>
+                <input type="text" id="ano_publicacao" placeholder="Ano de Publicação" required>
+
+                <label for="genero">Gênero:</label>
+                <input type="text" id="genero" placeholder="Gênero" required>
+
+                <button type="submit">Cadastrar Livro</button>
+            </form>
+
+            <!-- Botão para listar autores -->
+            <button id="botaoListarAutores">Listar Todos os Autores</button>
+            <ol id="listaAutores"></ol>
+
+            <!-- Mensagem de feedback -->
+            <div id="mensagemFeedback" class="mensagem-feedback" role="alert"></div>
         </main>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
+
